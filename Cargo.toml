@@ -13,4 +13,4 @@ version = "0.0.1"
 edition = "2024"
 authors = ["Aleksandar Golubović"]
 license = "MIT"
-repository = "https://gitlab.com/golubaca/doppelpad"
+repository = "https://github.com/golubaca/doppelpad"

@@ -1,0 +1,10 @@
+[package]
+name = "doppelpad-linux"
+description = "Linux backend for doppelpad (uhid/uinput). Early development; this release reserves the crate name."
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["gamepad", "controller", "virtual", "uinput", "linux"]
+categories = ["hardware-support", "os::linux-apis"]

@@ -1,0 +1,10 @@
+[package]
+name = "doppelpad-windows"
+description = "Windows backend for doppelpad (UMDF2/Virtual HID Framework). Early development; this release reserves the crate name."
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["gamepad", "controller", "virtual", "hid", "windows"]
+categories = ["hardware-support", "os::windows-apis"]

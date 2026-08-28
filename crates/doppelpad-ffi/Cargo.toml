@@ -1,0 +1,10 @@
+[package]
+name = "doppelpad-ffi"
+description = "C API for doppelpad. Early development; this release reserves the crate name."
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["gamepad", "controller", "virtual", "ffi", "capi"]
+categories = ["hardware-support", "external-ffi-bindings"]

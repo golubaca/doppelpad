@@ -1,0 +1,10 @@
+[package]
+name = "doppelpad"
+description = "Cross-platform virtual game controller library. Early development; this release reserves the crate name."
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["gamepad", "controller", "virtual", "hid", "input"]
+categories = ["hardware-support", "game-development"]

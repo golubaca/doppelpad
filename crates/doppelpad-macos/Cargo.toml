@@ -1,0 +1,10 @@
+[package]
+name = "doppelpad-macos"
+description = "macOS backend for doppelpad (planned). Early development; this release reserves the crate name."
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["gamepad", "controller", "virtual", "hid", "macos"]
+categories = ["hardware-support", "os::macos-apis"]

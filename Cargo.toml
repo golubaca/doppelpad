@@ -1,0 +1,16 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/doppelpad",
+    "crates/doppelpad-windows",
+    "crates/doppelpad-linux",
+    "crates/doppelpad-macos",
+    "crates/doppelpad-ffi",
+]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+authors = ["Aleksandar Golubović"]
+license = "MIT"
+repository = "https://gitlab.com/golubaca/doppelpad"

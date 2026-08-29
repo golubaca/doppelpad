@@ -1,6 +1,6 @@
 [package]
 name = "doppelpad-windows"
-description = "Windows backend for doppelpad (UMDF2/Virtual HID Framework). Early development; this release reserves the crate name."
+description = "Windows backend for doppelpad: a Rust client for the DoppelPad UMDF2 virtual HID driver."
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -8,3 +8,18 @@ license.workspace = true
 repository.workspace = true
 keywords = ["gamepad", "controller", "virtual", "hid", "windows"]
 categories = ["hardware-support", "os::windows-apis"]
+
+[target.'cfg(windows)'.dependencies.windows]
+version = "0.62"
+features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Storage_FileSystem",
+    "Win32_System_IO",
+    "Win32_System_Ioctl",
+]
+
+# Cursor APIs used by the integration test.
+[target.'cfg(windows)'.dev-dependencies.windows]
+version = "0.62"
+features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"]

@@ -1,6 +1,6 @@
 [package]
 name = "doppelpad"
-description = "Cross-platform virtual game controller library. Early development; this release reserves the crate name."
+description = "Cross-platform virtual game controller library: typed gamepad state and controller profiles over a platform HID backend."
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -8,3 +8,7 @@ license.workspace = true
 repository.workspace = true
 keywords = ["gamepad", "controller", "virtual", "hid", "input"]
 categories = ["hardware-support", "game-development"]
+
+[dependencies]
+thiserror = "2"
+bitflags = "2"

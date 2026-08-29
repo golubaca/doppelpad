@@ -27,15 +27,10 @@ const GENERIC_WRITE: u32 = 0x4000_0000;
 // HRESULT_FROM_WIN32(ERROR_IO_PENDING = 997).
 const HRESULT_IO_PENDING: i32 = 0x8007_03E5u32 as i32;
 
-/// An output report sent from the host to the device (e.g. a rumble command).
-#[derive(Clone, Debug)]
-pub struct OutputReport {
-    pub report_id: u8,
-    pub data: Vec<u8>,
-}
-
-/// Callback invoked (on an internal reader thread) for each output report.
-pub type OutputCallback = Box<dyn FnMut(OutputReport) + Send>;
+/// Callback invoked (on an internal reader thread) for each output report, with
+/// a borrowed slice: the report id, then the report body. Borrowing avoids a
+/// per-event allocation.
+pub type OutputCallback = Box<dyn FnMut(u8, &[u8]) + Send>;
 
 /// Events a device wishes to handle from its HID clients. A plain input-only
 /// device (mouse, keyboard, basic gamepad) needs none of these; output-capable
@@ -378,8 +373,7 @@ fn reader_loop(handle: HANDLE, stop_event: HANDLE, mut callback: OutputCallback)
 
         if event_type == ioctl::EVENT_WRITE_REPORT || event_type == ioctl::EVENT_SET_FEATURE {
             let end = (13 + data_length).min(n);
-            let data = buf[13..end].to_vec();
-            callback(OutputReport { report_id, data });
+            callback(report_id, &buf[13..end]);
             complete_write(handle, request_id, ioctl::STATUS_SUCCESS);
         }
         // Read/GET events are not requested by output-only devices; ignore.

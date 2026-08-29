@@ -24,11 +24,11 @@
 
 #![cfg(windows)]
 
+mod backend;
 mod device;
 mod error;
 mod ioctl;
 
-pub use device::{
-    OutputCallback, OutputReport, SupportedEvents, VirtualHidDevice, VirtualHidDeviceBuilder,
-};
+pub use backend::{WindowsBackend, WindowsHidDevice};
+pub use device::{OutputCallback, SupportedEvents, VirtualHidDevice, VirtualHidDeviceBuilder};
 pub use error::{Error, Result};

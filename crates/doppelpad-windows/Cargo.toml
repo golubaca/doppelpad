@@ -17,9 +17,14 @@ features = [
     "Win32_Storage_FileSystem",
     "Win32_System_IO",
     "Win32_System_Ioctl",
+    "Win32_System_Threading",
 ]
 
-# Cursor APIs used by the integration test.
+# Cursor + XInput APIs used by the integration test and the xbox_gamepad example.
 [target.'cfg(windows)'.dev-dependencies.windows]
 version = "0.62"
-features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging"]
+features = [
+    "Win32_Foundation",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Input_XboxController",
+]

@@ -28,5 +28,7 @@ mod device;
 mod error;
 mod ioctl;
 
-pub use device::{SupportedEvents, VirtualHidDevice, VirtualHidDeviceBuilder};
+pub use device::{
+    OutputCallback, OutputReport, SupportedEvents, VirtualHidDevice, VirtualHidDeviceBuilder,
+};
 pub use error::{Error, Result};

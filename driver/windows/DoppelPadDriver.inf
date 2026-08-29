@@ -1,0 +1,115 @@
+;
+; DoppelPadDriver.inf
+;
+
+[Version]
+Signature   = "$Windows NT$"
+Class       = System
+ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider    = %ManufacturerName%
+CatalogFile = DoppelPadDriver.cat
+DriverVer   = ; set by stampinf during build
+PnpLockdown = 1
+
+[Manufacturer]
+%ManufacturerName% = Standard, NT$ARCH$.10.0...19041, NT$ARCH$.10.0...22000
+
+[Standard.NT$ARCH$.10.0...19041]
+%DeviceName% = DoppelPad_Win10, Root\DoppelPad
+
+[Standard.NT$ARCH$.10.0...22000]
+%DeviceName% = DoppelPad_Win11, Root\DoppelPad
+
+[SourceDisksFiles]
+DoppelPadDriver.dll = 1
+
+[SourceDisksNames]
+1 = %DiskName%
+
+[DestinationDirs]
+UMDriverCopy = 13
+
+; =================== Windows 11+ ===================================
+
+[DoppelPad_Win11.NT]
+CopyFiles = UMDriverCopy
+Include = wudfrd.inf
+Include = hidvhf.inf
+Needs = WUDFRD_UpperFilter.NT
+Needs = vhfservice.NT
+
+[DoppelPad_Win11.NT.HW]
+Include = wudfrd.inf
+Include = hidvhf.inf
+Needs = WUDFRD_UpperFilter.NT.HW
+Needs = vhfservice.NT.HW
+AddReg = DoppelPad_AddReg
+
+[DoppelPad_Win11.NT.Services]
+Include = wudfrd.inf
+Include = hidvhf.inf
+Needs = WUDFRD_UpperFilter.NT.Services
+Needs = vhfservice.NT.Services
+
+[DoppelPad_Win11.NT.Filters]
+Include = WUDFRD.inf
+Needs = WUDFRD_UpperFilter.NT.Filters
+
+[DoppelPad_Win11.NT.Wdf]
+UmdfService = DoppelPadDriver,DoppelPad_Install
+UmdfServiceOrder = DoppelPadDriver
+
+; =================== Windows 10 ====================================
+
+[DoppelPad_Win10.NT]
+CopyFiles = UMDriverCopy
+Include = hidvhf.inf
+Needs = vhfservice.NT
+
+[DoppelPad_Win10.NT.HW]
+Include = hidvhf.inf
+Needs = vhfservice.NT.HW
+AddReg = DoppelPad_AddReg
+
+[DoppelPad_Win10.NT.Services]
+Include = hidvhf.inf
+Needs = vhfservice.NT.Services
+AddService = WUDFRd,0x1f8,WUDFRD_ServiceInstall
+
+[DoppelPad_Win10.NT.Filters]
+AddFilter = WUDFRd,,WUDFRD_UpperFilterPosition
+
+[DoppelPad_Win10.NT.Wdf]
+UmdfService = DoppelPadDriver,DoppelPad_Install
+UmdfServiceOrder = DoppelPadDriver
+
+[WUDFRD_UpperFilterPosition]
+FilterPosition = Upper
+
+[WUDFRD_ServiceInstall]
+DisplayName   = %WudfRdDisplayName%
+ServiceType   = 1
+StartType     = 3
+ErrorControl  = 1
+ServiceBinary = %12%\WUDFRd.sys
+
+; =================== Generic ======================================
+
+[DoppelPad_Install]
+UmdfLibraryVersion = $UMDFVERSION$
+ServiceBinary = %13%\DoppelPadDriver.dll
+
+[DoppelPad_AddReg]
+; Only allow access to our device object by admins or other UMDF drivers
+; otherwise emulated HID devices could be used to bypass UIPI.
+HKR,,Security,,"D:P(A;;GA;;;BA)(A;;GA;;;SY)(A;;GA;;;UD)"
+
+[UMDriverCopy]
+DoppelPadDriver.dll
+
+[Strings]
+ManufacturerName = "doppelpad project"
+DiskName = "DoppelPadDriver Installation Disk"
+DeviceName = "DoppelPad Virtual HID Enumerator"
+
+WudfRdDisplayName = "Windows Driver Foundation - User-mode Driver Framework Reflector"

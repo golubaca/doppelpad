@@ -1,0 +1,14 @@
+doppelpad
+Copyright (c) 2026 Aleksandar Golubović
+
+This product includes software from the following projects:
+
+WinUHid (https://github.com/cgutman/WinUHid)
+Copyright (c) 2025 Cameron Gutman
+Licensed under the MIT License.
+The Windows driver under driver/windows/ is derived from the WinUHid driver
+(upstream commit d6cebbef5c7909168d1f881185be8f607d6aefd4).
+
+Techniques for controller emulation on Windows are informed by documentation
+published by HIDMaestro (https://github.com/hifihedgehog/HIDMaestro),
+licensed under the MIT License.

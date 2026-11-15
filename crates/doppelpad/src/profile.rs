@@ -1,6 +1,7 @@
 //! Controller profiles: the byte-level knowledge for one controller identity.
 
 use crate::backend::DeviceConfig;
+use crate::error::Result;
 use crate::state::{GamepadState, Rumble};
 
 /// The maximum HID report size any profile produces. `VirtualGamepad` encodes
@@ -14,8 +15,9 @@ pub trait GamepadProfile: Sync {
     fn device_config(&self) -> DeviceConfig<'static>;
 
     /// Encode `state` into `out`, returning the report length. Implementations
-    /// must write no more than `MAX_REPORT_SIZE` bytes.
-    fn encode_input(&self, state: &GamepadState, out: &mut [u8]) -> usize;
+    /// write no more than `MAX_REPORT_SIZE` bytes and return
+    /// [`crate::Error::ReportBufferTooSmall`] if `out` is shorter than the report.
+    fn encode_input(&self, state: &GamepadState, out: &mut [u8]) -> Result<usize>;
 
     /// Decode an output report into rumble, or `None` if it carries nothing we
     /// map (e.g. a keep-alive with zero magnitude is still decoded, as zero).

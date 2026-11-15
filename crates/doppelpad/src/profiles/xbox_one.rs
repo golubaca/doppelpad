@@ -2,6 +2,7 @@
 //! #5 spike to bind `xinputhid` for XInput and rumble.
 
 use crate::backend::DeviceConfig;
+use crate::error::{Error, Result};
 use crate::profile::GamepadProfile;
 use crate::state::{Buttons, Dpad, GamepadState, Rumble};
 
@@ -80,8 +81,14 @@ impl GamepadProfile for XboxOne {
         }
     }
 
-    fn encode_input(&self, s: &GamepadState, out: &mut [u8]) -> usize {
-        let r = &mut out[..REPORT_LEN];
+    fn encode_input(&self, s: &GamepadState, out: &mut [u8]) -> Result<usize> {
+        let have = out.len();
+        let r = out
+            .get_mut(..REPORT_LEN)
+            .ok_or(Error::ReportBufferTooSmall {
+                needed: REPORT_LEN,
+                have,
+            })?;
         r.fill(0);
         r[0..2].copy_from_slice(&axis(s.left_stick.x, false).to_le_bytes());
         r[2..4].copy_from_slice(&axis(s.left_stick.y, true).to_le_bytes());
@@ -101,7 +108,7 @@ impl GamepadProfile for XboxOne {
         r[14] = hat(s.dpad);
         r[15] = u8::from(s.buttons.contains(Buttons::GUIDE));
         r[16] = 0xFF; // battery full
-        REPORT_LEN
+        Ok(REPORT_LEN)
     }
 
     fn decode_output(&self, _report_id: u8, data: &[u8]) -> Option<Rumble> {
@@ -135,7 +142,9 @@ mod tests {
     #[test]
     fn neutral_state_encodes_centered() {
         let mut buf = [0u8; MAX_REPORT_SIZE];
-        let n = XBOX_ONE.encode_input(&GamepadState::default(), &mut buf);
+        let n = XBOX_ONE
+            .encode_input(&GamepadState::default(), &mut buf)
+            .unwrap();
         assert_eq!(n, REPORT_LEN);
         // Centered sticks ~ 0x8000.
         assert_eq!(u16::from_le_bytes([buf[0], buf[1]]), 32768);
@@ -150,8 +159,23 @@ mod tests {
             buttons: Buttons::A,
             ..Default::default()
         };
-        XBOX_ONE.encode_input(&state, &mut buf);
+        XBOX_ONE.encode_input(&state, &mut buf).unwrap();
         assert_eq!(buf[12] & 0x01, 0x01);
+    }
+
+    #[test]
+    fn short_buffer_is_an_error_not_a_panic() {
+        let mut buf = [0u8; 8];
+        let err = XBOX_ONE
+            .encode_input(&GamepadState::default(), &mut buf)
+            .unwrap_err();
+        assert!(matches!(
+            err,
+            Error::ReportBufferTooSmall {
+                needed: REPORT_LEN,
+                have: 8
+            }
+        ));
     }
 
     #[test]

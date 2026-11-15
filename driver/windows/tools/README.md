@@ -61,6 +61,14 @@ machine's `Root` store so Windows accepts the catalog signature without a prompt
 or test-signing mode. This is appropriate for development and for a controlled
 first-party install, but a certificate in the machine `Root` store can vouch for
 any code signed by its private key. The key is generated locally and marked
-non-exportable. `Uninstall-DoppelPadDriver.ps1 -RemoveCert` removes it. A
-production distribution should revisit this in favor of an attestation-signed
-package; see the project notes.
+non-exportable. `Uninstall-DoppelPadDriver.ps1 -RemoveCert` removes it.
+
+A public binary release would need attestation signing through Microsoft's
+Partner Center, which requires an EV code-signing certificate. The self-signed
+route is for development and for first-party installers that ship their own
+certificate.
+
+`New-DoppelPadCert` reuses an existing certificate with the same subject, so a
+change to its parameters only applies after the old certificate is removed
+(`Uninstall-DoppelPadDriver.ps1 -RemoveCert`) and the driver is installed again,
+which re-signs it.

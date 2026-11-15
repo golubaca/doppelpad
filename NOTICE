@@ -5,7 +5,7 @@ This product includes software from the following projects:
 
 WinUHid (https://github.com/cgutman/WinUHid)
 Copyright (c) 2025 Cameron Gutman
-Licensed under the MIT License.
+Licensed under the MIT License; full text in driver/windows/LICENSE-WinUHid.
 The Windows driver under driver/windows/ is derived from the WinUHid driver
 (upstream commit d6cebbef5c7909168d1f881185be8f607d6aefd4).
 

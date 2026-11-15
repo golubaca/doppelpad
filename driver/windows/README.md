@@ -8,7 +8,8 @@ interface defined in `Public.h`.
 ## Provenance
 
 Derived from the driver component of [WinUHid](https://github.com/cgutman/WinUHid)
-by Cameron Gutman, MIT licensed (see the repository NOTICE file). Vendored as a
+by Cameron Gutman, MIT licensed (license text in [LICENSE-WinUHid](LICENSE-WinUHid);
+see also the repository NOTICE file). Vendored as a
 plain copy from upstream commit `d6cebbef5c7909168d1f881185be8f607d6aefd4`
 (2025-05-28). Upstream is dormant; we maintain this copy and expect to diverge.
 

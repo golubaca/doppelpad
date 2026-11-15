@@ -39,7 +39,7 @@ impl<D: HidDevice> VirtualGamepad<D> {
     /// the report is built in a stack buffer.
     pub fn set_state(&self, state: &GamepadState) -> Result<()> {
         let mut buf = [0u8; MAX_REPORT_SIZE];
-        let len = self.profile.encode_input(state, &mut buf);
+        let len = self.profile.encode_input(state, &mut buf)?;
         self.device.submit_input_report(&buf[..len])
     }
 }

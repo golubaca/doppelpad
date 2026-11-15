@@ -147,9 +147,15 @@ impl VirtualHidDeviceBuilder {
             return Err(Error::InvalidReportDescriptor);
         }
 
+        // Created before the handle so a failure here cannot leak an unwrapped handle.
+        let write_event = Event::new().map_err(|source| Error::Ioctl {
+            op: "create_write_event",
+            source,
+        })?;
         let handle = open_control_device()?;
         let mut device = VirtualHidDevice {
             handle,
+            write_event,
             reader: None,
         };
 
@@ -199,6 +205,9 @@ impl VirtualHidDeviceBuilder {
 /// A live virtual HID device. Dropping it removes the device from the system.
 pub struct VirtualHidDevice {
     handle: HANDLE,
+    // Reused by every submit_input_report. Safe only because this type is Send but
+    // not Sync, so two submissions never overlap; do not add a Sync impl.
+    write_event: Event,
     reader: Option<Reader>,
 }
 
@@ -210,9 +219,11 @@ impl VirtualHidDevice {
     /// Submit a HID input report. For a numbered-report device the first byte
     /// must be the report ID. The report must match the descriptor's size.
     pub fn submit_input_report(&self, report: &[u8]) -> Result<()> {
-        let event = Event::new().map_err(Error::SubmitReport)?;
+        unsafe {
+            let _ = ResetEvent(self.write_event.0);
+        }
         let mut ov = OVERLAPPED {
-            hEvent: event.0,
+            hEvent: self.write_event.0,
             ..Default::default()
         };
         let mut written = 0u32;
@@ -347,9 +358,12 @@ fn reader_loop(handle: HANDLE, stop_event: HANDLE, mut callback: OutputCallback)
                 let objects = [io_event.0, stop_event];
                 let waited = unsafe { WaitForMultipleObjects(&objects, false, INFINITE) };
                 if waited != WAIT_OBJECT_0 {
-                    // Stop requested (or wait failed): cancel and exit.
+                    // Stop requested (or wait failed): cancel, then wait for the request to
+                    // finish, since cancellation is async and the kernel still owns ov/buf/io_event.
+                    let mut got = 0u32;
                     unsafe {
                         let _ = CancelIoEx(handle, Some(&ov));
+                        let _ = GetOverlappedResult(handle, &ov, &mut got, true);
                     }
                     break;
                 }
@@ -363,17 +377,20 @@ fn reader_loop(handle: HANDLE, stop_event: HANDLE, mut callback: OutputCallback)
         };
 
         let n = n as usize;
-        if n < 13 {
+        let header_len = size_of::<ioctl::EventHeader>();
+        if n < header_len {
             continue;
         }
-        let event_type = u32::from_le_bytes(buf[0..4].try_into().unwrap());
-        let request_id = u32::from_le_bytes(buf[4..8].try_into().unwrap());
-        let report_id = buf[8];
-        let data_length = u32::from_le_bytes(buf[9..13].try_into().unwrap()) as usize;
+        // SAFETY: the driver wrote n >= header_len bytes; EventHeader is packed POD.
+        let header = unsafe { std::ptr::read_unaligned(buf.as_ptr() as *const ioctl::EventHeader) };
+        // Copy out of the packed struct; comparing its fields in place would borrow them.
+        let (event_type, request_id, report_id) =
+            (header.event_type, header.request_id, header.report_id);
+        let data_length = header.data_length as usize;
 
         if event_type == ioctl::EVENT_WRITE_REPORT || event_type == ioctl::EVENT_SET_FEATURE {
-            let end = (13 + data_length).min(n);
-            callback(report_id, &buf[13..end]);
+            let end = (header_len + data_length).min(n);
+            callback(report_id, &buf[header_len..end]);
             complete_write(handle, request_id, ioctl::STATUS_SUCCESS);
         }
         // Read/GET events are not requested by output-only devices; ignore.

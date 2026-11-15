@@ -94,7 +94,7 @@ function New-DoppelPadCert {
         -HashAlgorithm SHA256 `
         -CertStoreLocation Cert:\LocalMachine\My `
         -NotAfter (Get-Date).AddYears(10) `
-        -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3')
+        -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}ca=false')
 }
 
 # Ensure the cert's public part is trusted in the given LocalMachine store (idempotent).

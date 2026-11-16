@@ -1,7 +1,8 @@
 [package]
 name = "doppelpad-windows"
 description = "Windows backend for doppelpad: a Rust client for the DoppelPad UMDF2 virtual HID driver."
-version.workspace = true
+version = "0.1.0"
+readme = "../../README.md"
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -10,7 +11,12 @@ keywords = ["gamepad", "controller", "virtual", "hid", "windows"]
 categories = ["hardware-support", "os::windows-apis"]
 
 [dependencies]
-doppelpad = { path = "../doppelpad" }
+doppelpad = { path = "../doppelpad", version = "0.1.0" }
+
+# The crate is Windows-only, so docs.rs must build it for a Windows target.
+[package.metadata.docs.rs]
+default-target = "x86_64-pc-windows-msvc"
+targets = ["x86_64-pc-windows-msvc"]
 
 [target.'cfg(windows)'.dependencies.windows]
 version = "0.62"

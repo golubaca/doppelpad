@@ -10,7 +10,7 @@ checksum = "b588b76d00fde79687d7646a9b5bdf3cc0f655e0bbd080335a95d7e96f3587da"
 
 [[package]]
 name = "doppelpad"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "bitflags",
  "thiserror",
@@ -30,7 +30,7 @@ version = "0.0.1"
 
 [[package]]
 name = "doppelpad-windows"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "doppelpad",
  "windows",

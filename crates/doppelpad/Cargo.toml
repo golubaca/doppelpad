@@ -1,7 +1,8 @@
 [package]
 name = "doppelpad"
 description = "Cross-platform virtual game controller library: typed gamepad state and controller profiles over a platform HID backend."
-version.workspace = true
+version = "0.1.0"
+readme = "../../README.md"
 edition.workspace = true
 authors.workspace = true
 license.workspace = true

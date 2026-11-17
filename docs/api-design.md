@@ -61,9 +61,12 @@ pub struct GamepadState {
 }
 
 /// Decoded output event.
+#[non_exhaustive]                  // more feedback fields can follow without a break
 pub struct Rumble {
     pub left_motor: u8,            // 0..=255 low-frequency (strong) motor
     pub right_motor: u8,           // 0..=255 high-frequency (weak) motor
+    pub left_trigger: u8,          // 0..=255 trigger motor; 0 if the profile has none
+    pub right_trigger: u8,
 }
 ```
 

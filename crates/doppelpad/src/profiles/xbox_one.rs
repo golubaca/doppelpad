@@ -112,24 +112,25 @@ impl GamepadProfile for XboxOne {
     }
 
     fn decode_output(&self, _report_id: u8, data: &[u8]) -> Option<Rumble> {
-        // Output report: [MotorsEnabled, LTrig, RTrig, LeftMotor, RightMotor, ...].
+        // Output report: [Enable, LTrig, RTrig, Strong, Weak, Duration, Delay, Loop].
+        // Enable bits: 0 weak, 1 strong, 2 right trigger, 3 left trigger.
         if data.len() < 5 {
             return None;
         }
         let enabled = data[0];
-        // Motor magnitudes are 0..=100 (descriptor logical max); scale to 0..=255.
-        let scale = |v: u8| ((v as u16 * 255) / 100).min(255) as u8;
+        // Magnitudes are 0..=100 (descriptor logical max); scale to 0..=255.
+        let magnitude = |bit: u8, i: usize| {
+            if enabled & bit != 0 {
+                ((data[i] as u16 * 255) / 100).min(255) as u8
+            } else {
+                0
+            }
+        };
         Some(Rumble {
-            left_motor: if enabled & 0x1 != 0 {
-                scale(data[3])
-            } else {
-                0
-            },
-            right_motor: if enabled & 0x2 != 0 {
-                scale(data[4])
-            } else {
-                0
-            },
+            left_motor: magnitude(0x2, 3),
+            right_motor: magnitude(0x1, 4),
+            left_trigger: magnitude(0x8, 1),
+            right_trigger: magnitude(0x4, 2),
         })
     }
 }
@@ -185,5 +186,33 @@ mod tests {
         let r = XBOX_ONE.decode_output(0, &report).unwrap();
         assert_eq!(r.left_motor, 255);
         assert_eq!(r.right_motor, 0);
+        assert_eq!(r.left_trigger, 0);
+        assert_eq!(r.right_trigger, 0);
+    }
+
+    #[test]
+    fn decodes_trigger_rumble() {
+        // All enabled, as xinputhid sends it: LT 100, RT 50.
+        let report = [0x0F, 100, 50, 0, 0, 0xFF, 0, 0];
+        let r = XBOX_ONE.decode_output(0, &report).unwrap();
+        assert_eq!(r.left_trigger, 255);
+        assert_eq!(r.right_trigger, 127);
+    }
+
+    #[test]
+    fn honours_enable_bits_per_actuator() {
+        // Every magnitude at max; only the enabled actuator may come through.
+        let decode = |enable: u8| {
+            let report = [enable, 100, 100, 100, 100, 0xFF, 0, 0];
+            XBOX_ONE.decode_output(0, &report).unwrap()
+        };
+        let r = decode(0x1);
+        assert_eq!((r.left_motor, r.right_motor), (0, 255));
+        let r = decode(0x2);
+        assert_eq!((r.left_motor, r.right_motor), (255, 0));
+        let r = decode(0x4);
+        assert_eq!((r.left_trigger, r.right_trigger), (0, 255));
+        let r = decode(0x8);
+        assert_eq!((r.left_trigger, r.right_trigger), (255, 0));
     }
 }

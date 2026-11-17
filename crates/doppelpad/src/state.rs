@@ -67,9 +67,16 @@ pub struct GamepadState {
 
 /// A decoded rumble command from the host, delivered to the rumble callback.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[non_exhaustive]
 pub struct Rumble {
     /// Low-frequency (strong) motor magnitude, 0..=255.
     pub left_motor: u8,
     /// High-frequency (weak) motor magnitude, 0..=255.
     pub right_motor: u8,
+    /// Left trigger motor ("impulse trigger") magnitude, 0..=255. Zero for
+    /// profiles without trigger motors.
+    pub left_trigger: u8,
+    /// Right trigger motor magnitude, 0..=255. Zero for profiles without
+    /// trigger motors.
+    pub right_trigger: u8,
 }
